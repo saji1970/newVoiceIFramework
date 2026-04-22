@@ -2,15 +2,14 @@ from __future__ import annotations
 
 import base64
 
-from fastapi import APIRouter, Depends, WebSocket, WebSocketDisconnect, UploadFile, File, Form
-from fastapi.responses import Response
+from fastapi import APIRouter, Depends, File, Form, UploadFile, WebSocket, WebSocketDisconnect
 from pydantic import BaseModel
 
-from server.dependencies import get_engine, verify_api_key
 from server.core.engine import CoreEngine
+from server.dependencies import get_engine, verify_api_key
 from server.voice.manager import voice_manager
-from server.voice.streaming import VoiceStreamHandler
 from server.voice.push_to_talk import PushToTalkHandler
+from server.voice.streaming import VoiceStreamHandler
 
 router = APIRouter(tags=["voice"])
 
@@ -98,7 +97,6 @@ async def voice_providers(_api_key: str = Depends(verify_api_key)):
     return {
         "stt": list(voice_manager._stt_providers.keys()),
         "tts": {
-            name: provider.list_voices()
-            for name, provider in voice_manager._tts_providers.items()
+            name: provider.list_voices() for name, provider in voice_manager._tts_providers.items()
         },
     }

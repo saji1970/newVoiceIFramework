@@ -14,11 +14,13 @@ async def list_providers(_api_key: str = Depends(verify_api_key)):
     providers = []
     for name, available in provider_registry.list_all().items():
         p = provider_registry.get(name)
-        providers.append({
-            "name": name,
-            "available": available,
-            "models": p.list_models() if p else [],
-        })
+        providers.append(
+            {
+                "name": name,
+                "available": available,
+                "models": p.list_models() if p else [],
+            }
+        )
     return {"providers": providers}
 
 
@@ -28,6 +30,7 @@ async def get_provider(provider_name: str, _api_key: str = Depends(verify_api_ke
     p = provider_registry.get(provider_name)
     if p is None:
         from fastapi import HTTPException
+
         raise HTTPException(404, f"Provider '{provider_name}' not found")
     return {
         "name": p.name,
@@ -42,5 +45,6 @@ async def list_models(provider_name: str, _api_key: str = Depends(verify_api_key
     p = provider_registry.get(provider_name)
     if p is None:
         from fastapi import HTTPException
+
         raise HTTPException(404, f"Provider '{provider_name}' not found")
     return {"models": p.list_models()}

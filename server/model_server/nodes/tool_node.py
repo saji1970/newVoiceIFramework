@@ -6,7 +6,7 @@ import logging
 from typing import Any
 
 from server.config import settings
-from server.model_server.nodes.base import PipelineNode, NodeResult, PipelineContext
+from server.model_server.nodes.base import NodeResult, PipelineContext, PipelineNode
 
 logger = logging.getLogger(__name__)
 
@@ -40,7 +40,7 @@ class ToolNode(PipelineNode):
                         output=None,
                         success=False,
                         error="No allowed_tool_modules configured. "
-                              "Add modules to ALLOWED_TOOL_MODULES in your .env to enable tool nodes.",
+                        "Add modules to ALLOWED_TOOL_MODULES in your .env to enable tool nodes.",
                     )
 
                 if tool_module not in allowed:
@@ -48,10 +48,11 @@ class ToolNode(PipelineNode):
                         f"ToolNode '{self.node_id}' blocked: module '{tool_module}' "
                         f"not in allowed list: {allowed}"
                     )
+                    err = f"Module '{tool_module}' is not in the allowed_tool_modules whitelist"
                     return NodeResult(
                         output=None,
                         success=False,
-                        error=f"Module '{tool_module}' is not in the allowed_tool_modules whitelist",
+                        error=err,
                     )
 
                 mod = importlib.import_module(tool_module)
@@ -79,5 +80,7 @@ class ToolNode(PipelineNode):
     def validate_config(self) -> list[str]:
         errors = []
         if not self.config.get("module") or not self.config.get("function"):
-            errors.append(f"Node {self.node_id}: 'module' and 'function' are required for tool nodes")
+            errors.append(
+                f"Node {self.node_id}: 'module' and 'function' are required for tool nodes"
+            )
         return errors

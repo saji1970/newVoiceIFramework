@@ -4,7 +4,7 @@ import json
 import logging
 from typing import Any
 
-from server.model_server.nodes.base import PipelineNode, NodeResult, PipelineContext
+from server.model_server.nodes.base import NodeResult, PipelineContext, PipelineNode
 
 logger = logging.getLogger(__name__)
 

@@ -1,9 +1,7 @@
 from __future__ import annotations
 
-import asyncio
 import json
 import logging
-from typing import AsyncIterator
 
 from fastapi import WebSocket
 
@@ -38,7 +36,6 @@ class VoiceStreamHandler:
         await websocket.send_json({"type": "session_start", "session_id": session.id})
 
         audio_buffer: list[bytes] = []
-        collecting = False
 
         try:
             while session.active:

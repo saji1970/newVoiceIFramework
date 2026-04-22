@@ -6,8 +6,8 @@ from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 
 from server.dependencies import verify_api_key
-from server.model_server.config_loader import parse_pipeline_dict, PipelineConfig
-from server.model_server.pipeline import pipeline_engine, PipelineExecutionError
+from server.model_server.config_loader import PipelineConfig, parse_pipeline_dict
+from server.model_server.pipeline import PipelineExecutionError, pipeline_engine
 
 router = APIRouter(prefix="/pipelines", tags=["pipelines"])
 
@@ -121,13 +121,15 @@ async def update_pipeline(
     except Exception as e:
         raise HTTPException(400, f"Invalid pipeline config: {e}")
 
-    _pipelines[pipeline_id].update({
-        "name": request.name,
-        "description": request.description,
-        "config": request.config,
-        "version": request.version,
-        "parsed": parsed,
-    })
+    _pipelines[pipeline_id].update(
+        {
+            "name": request.name,
+            "description": request.description,
+            "config": request.config,
+            "version": request.version,
+            "parsed": parsed,
+        }
+    )
 
     return PipelineResponse(
         id=pipeline_id,

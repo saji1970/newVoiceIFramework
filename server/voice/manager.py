@@ -75,10 +75,10 @@ class VoiceManager:
 
     async def initialize(self):
         """Auto-discover and register STT/TTS providers."""
-        from server.voice.stt.whisper import WhisperSTT
         from server.voice.stt.deepgram import DeepgramSTT
-        from server.voice.tts.openai_tts import OpenAITTS
+        from server.voice.stt.whisper import WhisperSTT
         from server.voice.tts.elevenlabs import ElevenLabsTTS
+        from server.voice.tts.openai_tts import OpenAITTS
 
         for cls in [WhisperSTT, DeepgramSTT]:
             try:

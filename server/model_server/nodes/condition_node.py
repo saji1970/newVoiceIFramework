@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from server.model_server.nodes.base import PipelineNode, NodeResult, PipelineContext
+from server.model_server.nodes.base import NodeResult, PipelineContext, PipelineNode
 
 
 class ConditionNode(PipelineNode):

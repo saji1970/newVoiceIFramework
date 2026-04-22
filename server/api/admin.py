@@ -7,6 +7,7 @@ from fastapi import APIRouter, Depends
 from server.config import settings
 from server.dependencies import verify_api_key
 from server.providers.registry import provider_registry
+from server.version import __version__
 
 router = APIRouter(tags=["admin"])
 
@@ -18,7 +19,7 @@ async def health():
     return {
         "status": "ok",
         "uptime_seconds": round(time.time() - _start_time, 1),
-        "version": "0.1.0",
+        "version": __version__,
     }
 
 

@@ -3,9 +3,7 @@ from __future__ import annotations
 import json
 from typing import Any
 
-from jinja2 import Template
-
-from server.model_server.nodes.base import PipelineNode, NodeResult, PipelineContext
+from server.model_server.nodes.base import NodeResult, PipelineContext, PipelineNode
 
 
 class TransformNode(PipelineNode):

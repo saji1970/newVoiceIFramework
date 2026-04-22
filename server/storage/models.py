@@ -3,7 +3,7 @@ from __future__ import annotations
 import uuid
 from datetime import datetime, timezone
 
-from sqlalchemy import Column, DateTime, Float, ForeignKey, Integer, String, Text, JSON
+from sqlalchemy import JSON, Column, DateTime, ForeignKey, Integer, String, Text
 from sqlalchemy.orm import DeclarativeBase, relationship
 
 
@@ -30,7 +30,9 @@ class ConversationRecord(Base):
     created_at = Column(DateTime(timezone=True), default=_utcnow)
     updated_at = Column(DateTime(timezone=True), default=_utcnow, onupdate=_utcnow)
 
-    messages = relationship("MessageRecord", back_populates="conversation", cascade="all, delete-orphan")
+    messages = relationship(
+        "MessageRecord", back_populates="conversation", cascade="all, delete-orphan"
+    )
 
 
 class MessageRecord(Base):

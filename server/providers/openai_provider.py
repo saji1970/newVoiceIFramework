@@ -64,7 +64,9 @@ class OpenAIProvider(LLMProvider):
             if delta.content:
                 yield delta.content
 
-    async def embeddings(self, texts: list[str], model: str = "text-embedding-3-small", **kwargs) -> list[list[float]]:
+    async def embeddings(
+        self, texts: list[str], model: str = "text-embedding-3-small", **kwargs
+    ) -> list[list[float]]:
         response = await self.client.embeddings.create(
             model=model,
             input=texts,

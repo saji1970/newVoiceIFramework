@@ -1,4 +1,4 @@
-.PHONY: dev install test lint format docker-up docker-down
+.PHONY: dev install test lint format docker-up docker-down db-init
 
 install:
 	pip install -e ".[dev,voice,all-providers]"
@@ -24,5 +24,6 @@ docker-up:
 docker-down:
 	docker compose down
 
-db-upgrade:
-	python -m server.storage.database upgrade
+# Initialize / migrate DB schema (SQLAlchemy create_all)
+db-init:
+	python -c "import asyncio; from server.storage.database import init_db; asyncio.run(init_db())"

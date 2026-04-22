@@ -1,5 +1,17 @@
 const API_BASE = '/api'
 
+function buildHeaders(extra: Record<string, string> = {}): Record<string, string> {
+  const h: Record<string, string> = {
+    'Content-Type': 'application/json',
+    ...extra,
+  }
+  const key = import.meta.env.VITE_API_KEY
+  if (key) {
+    h['X-API-Key'] = key
+  }
+  return h
+}
+
 interface RequestOptions {
   method?: string
   body?: unknown
@@ -10,10 +22,7 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
   const { method = 'GET', body, headers = {} } = options
   const res = await fetch(`${API_BASE}${path}`, {
     method,
-    headers: {
-      'Content-Type': 'application/json',
-      ...headers,
-    },
+    headers: buildHeaders(headers),
     body: body ? JSON.stringify(body) : undefined,
   })
   if (!res.ok) {
@@ -47,7 +56,7 @@ export const api = {
   chatStream: (req: ChatRequest) => {
     return fetch(`${API_BASE}/chat/stream`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: buildHeaders(),
       body: JSON.stringify(req),
     })
   },

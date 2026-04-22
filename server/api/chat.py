@@ -4,9 +4,8 @@ from fastapi import APIRouter, Depends
 from pydantic import BaseModel, Field
 from sse_starlette.sse import EventSourceResponse
 
-from server.dependencies import get_engine, verify_api_key
 from server.core.engine import CoreEngine
-from server.utils.streaming import sse_stream
+from server.dependencies import get_engine, verify_api_key
 
 router = APIRouter(tags=["chat"])
 
@@ -73,6 +72,7 @@ async def chat_stream(
 
     async def event_generator():
         import json
+
         yield json.dumps({"type": "start", "conversation_id": conv.id})
         async for chunk in stream:
             yield json.dumps({"type": "chunk", "content": chunk})
@@ -98,12 +98,12 @@ async def get_conversation(
     conv = engine.conversations.get(conversation_id)
     if conv is None:
         from fastapi import HTTPException
+
         raise HTTPException(404, "Conversation not found")
     return {
         "id": conv.id,
         "messages": [
-            {"role": m.role, "content": m.content, "timestamp": m.timestamp}
-            for m in conv.messages
+            {"role": m.role, "content": m.content, "timestamp": m.timestamp} for m in conv.messages
         ],
         "created_at": conv.created_at,
     }

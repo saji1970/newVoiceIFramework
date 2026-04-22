@@ -10,3 +10,8 @@ __pycache__/
 
 # Windows artifact
 nul
+
+# Node
+node_modules/
+dist/
+dashboard/dist/

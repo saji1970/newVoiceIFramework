@@ -3,7 +3,7 @@ from __future__ import annotations
 import logging
 from typing import AsyncIterator
 
-from server.core.conversation import ConversationManager, Conversation
+from server.core.conversation import Conversation, ConversationManager
 from server.core.memory import MemoryStore
 from server.core.router import ProviderRouter
 from server.providers.registry import ProviderRegistry

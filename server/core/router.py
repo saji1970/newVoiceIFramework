@@ -33,8 +33,6 @@ class ProviderRouter:
         provider = self.registry.get(name)
         if provider is None:
             available = self.registry.list_available()
-            raise ValueError(
-                f"Provider '{name}' not found. Available: {available}"
-            )
+            raise ValueError(f"Provider '{name}' not found. Available: {available}")
 
         return provider, model_name

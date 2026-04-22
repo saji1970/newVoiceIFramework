@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import io
 import logging
-from typing import AsyncIterator
 
 from server.config import settings
 from server.voice.stt.base import STTProvider
@@ -48,9 +47,10 @@ class WhisperSTT(STTProvider):
         import asyncio
 
         def _run():
-            import whisper
-            import tempfile
             import os
+            import tempfile
+
+            import whisper
 
             if self._local_model is None:
                 self._local_model = whisper.load_model("base")

@@ -28,9 +28,9 @@ class ProviderRegistry:
 
     async def discover(self):
         """Import and register all built-in providers."""
-        from server.providers.openai_provider import OpenAIProvider
         from server.providers.anthropic_provider import AnthropicProvider
         from server.providers.ollama_provider import OllamaProvider
+        from server.providers.openai_provider import OpenAIProvider
 
         for cls in [OpenAIProvider, AnthropicProvider, OllamaProvider]:
             try:
@@ -45,6 +45,7 @@ class ProviderRegistry:
         # Try optional providers
         try:
             from server.providers.google_provider import GoogleProvider
+
             p = GoogleProvider()
             if p.is_available():
                 self.register(p)
@@ -53,6 +54,7 @@ class ProviderRegistry:
 
         try:
             from server.providers.mistral_provider import MistralProvider
+
             p = MistralProvider()
             if p.is_available():
                 self.register(p)
@@ -61,6 +63,7 @@ class ProviderRegistry:
 
         try:
             from server.providers.cohere_provider import CohereProvider
+
             p = CohereProvider()
             if p.is_available():
                 self.register(p)
@@ -69,6 +72,7 @@ class ProviderRegistry:
 
         try:
             from server.providers.vllm_provider import VLLMProvider
+
             p = VLLMProvider()
             if p.is_available():
                 self.register(p)

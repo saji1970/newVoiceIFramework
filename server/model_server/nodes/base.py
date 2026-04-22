@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from typing import Any, Callable, Awaitable
+from typing import Any, Awaitable, Callable
 
 
 @dataclass
@@ -47,6 +47,7 @@ class PipelineContext:
     def resolve_template(self, template: str) -> str:
         """Resolve Jinja2-style {{variable}} references in a template string."""
         from jinja2 import Template
+
         tmpl = Template(template)
         render_ctx = {**self.variables, **self.node_outputs}
         return tmpl.render(**render_ctx)

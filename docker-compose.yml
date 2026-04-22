@@ -6,6 +6,10 @@ services:
     ports:
       - "8000:8000"
     env_file: .env
+    environment:
+      # Persist SQLite in named volume; override in .env if using Postgres
+      DATABASE_URL: sqlite+aiosqlite:///./data/voicei.db
+      CORS_ORIGINS: http://localhost:5173,http://127.0.0.1:5173,http://localhost:3000
     volumes:
       - ./server:/app/server
       - ./pipelines:/app/pipelines
@@ -22,7 +26,8 @@ services:
     volumes:
       - ./dashboard/src:/app/src
     environment:
-      - VITE_API_URL=http://localhost:8000
+      # Vite dev proxy target (browser still uses /api; container must reach the API)
+      - API_PROXY_TARGET=http://server:8000
 
   redis:
     image: redis:7-alpine

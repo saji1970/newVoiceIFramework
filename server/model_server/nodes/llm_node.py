@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from server.model_server.nodes.base import PipelineNode, NodeResult, PipelineContext
+from server.model_server.nodes.base import NodeResult, PipelineContext, PipelineNode
 from server.providers.registry import provider_registry
 
 
@@ -24,7 +24,9 @@ class LLMNode(PipelineNode):
 
         provider = provider_registry.get(provider_name)
         if provider is None:
-            return NodeResult(output=None, success=False, error=f"Provider '{provider_name}' not found")
+            return NodeResult(
+                output=None, success=False, error=f"Provider '{provider_name}' not found"
+            )
 
         messages = []
         if system_prompt:

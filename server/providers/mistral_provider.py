@@ -18,6 +18,7 @@ class MistralProvider(LLMProvider):
     def client(self):
         if self._client is None:
             from mistralai import Mistral
+
             self._client = Mistral(api_key=settings.mistral_api_key)
         return self._client
 
@@ -25,7 +26,12 @@ class MistralProvider(LLMProvider):
         return bool(settings.mistral_api_key)
 
     def list_models(self) -> list[str]:
-        return ["mistral-large-latest", "mistral-medium-latest", "mistral-small-latest", "open-mistral-nemo"]
+        return [
+            "mistral-large-latest",
+            "mistral-medium-latest",
+            "mistral-small-latest",
+            "open-mistral-nemo",
+        ]
 
     async def chat(
         self,

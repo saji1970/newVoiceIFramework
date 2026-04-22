@@ -50,9 +50,11 @@ class GraphQLConnector(Connector):
 
     async def test(self) -> bool:
         try:
-            result = await self.execute({
-                "query": "{ __typename }",
-            })
+            result = await self.execute(
+                {
+                    "query": "{ __typename }",
+                }
+            )
             return result is not None
         except Exception:
             return False

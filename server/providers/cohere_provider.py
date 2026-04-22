@@ -18,6 +18,7 @@ class CohereProvider(LLMProvider):
     def client(self):
         if self._client is None:
             import cohere
+
             self._client = cohere.AsyncClientV2(api_key=settings.cohere_api_key)
         return self._client
 

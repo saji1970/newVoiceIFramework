@@ -77,7 +77,9 @@ class OllamaProvider(LLMProvider):
                         if content:
                             yield content
 
-    async def embeddings(self, texts: list[str], model: str = "nomic-embed-text", **kwargs) -> list[list[float]]:
+    async def embeddings(
+        self, texts: list[str], model: str = "nomic-embed-text", **kwargs
+    ) -> list[list[float]]:
         results = []
         async with httpx.AsyncClient(timeout=60) as client:
             for text in texts:

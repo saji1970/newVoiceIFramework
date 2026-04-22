@@ -17,6 +17,7 @@ class GoogleProvider(LLMProvider):
     def _get_client(self):
         if self._client is None:
             from google import genai
+
             self._client = genai.Client(api_key=settings.google_api_key)
         return self._client
 
@@ -47,6 +48,7 @@ class GoogleProvider(LLMProvider):
                 contents.append({"role": role, "parts": [{"text": m["content"]}]})
 
         from google.genai import types
+
         config = types.GenerateContentConfig(
             temperature=temperature,
             max_output_tokens=max_tokens,
@@ -80,6 +82,7 @@ class GoogleProvider(LLMProvider):
                 contents.append({"role": role, "parts": [{"text": m["content"]}]})
 
         from google.genai import types
+
         config = types.GenerateContentConfig(
             temperature=temperature,
             max_output_tokens=max_tokens,

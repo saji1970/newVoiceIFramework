@@ -3,14 +3,14 @@ from __future__ import annotations
 import logging
 from typing import Any
 
-from server.model_server.config_loader import PipelineConfig, NodeConfig
-from server.model_server.nodes.base import PipelineNode, PipelineContext, NodeResult
-from server.model_server.nodes.llm_node import LLMNode
+from server.model_server.config_loader import NodeConfig, PipelineConfig
 from server.model_server.nodes.api_node import APINode
-from server.model_server.nodes.transform_node import TransformNode
+from server.model_server.nodes.base import NodeResult, PipelineContext, PipelineNode
 from server.model_server.nodes.condition_node import ConditionNode
+from server.model_server.nodes.llm_node import LLMNode
 from server.model_server.nodes.loop_node import LoopNode
 from server.model_server.nodes.tool_node import ToolNode
+from server.model_server.nodes.transform_node import TransformNode
 
 logger = logging.getLogger(__name__)
 
@@ -65,7 +65,11 @@ class PipelineEngine:
     ) -> dict[str, Any]:
         """Execute a pipeline and return all node outputs."""
         context = PipelineContext(
-            variables={**config.variables, **(variables or {}), "input": input_data.get("input", "")},
+            variables={
+                **config.variables,
+                **(variables or {}),
+                "input": input_data.get("input", ""),
+            },
         )
         # Also make all input data available
         context.variables.update(input_data)
