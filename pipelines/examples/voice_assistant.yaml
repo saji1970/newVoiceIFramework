@@ -1,0 +1,26 @@
+name: voice_assistant
+version: "1.0"
+description: Voice assistant pipeline optimized for spoken interaction
+trigger: voice
+
+nodes:
+  - id: understand
+    type: llm
+    provider: openai
+    model: gpt-4o-mini
+    prompt: |
+      The user spoke the following (transcribed from speech, may have errors):
+      "{{input}}"
+
+      Rewrite this as a clean, clear question or statement. Fix any obvious
+      transcription errors. Output ONLY the cleaned text.
+
+  - id: respond
+    type: llm
+    provider: openai
+    model: gpt-4o
+    system_prompt: |
+      You are a voice assistant. Keep your responses concise and natural
+      for spoken delivery. Avoid markdown formatting, bullet points, or
+      long lists. Speak conversationally.
+    prompt: "{{understand.output}}"

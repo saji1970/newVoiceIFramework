@@ -1,0 +1,50 @@
+name: voice_agent
+version: "1.0"
+description: Voice-enabled agent with classification and routing
+trigger: voice
+
+nodes:
+  - id: classify
+    type: llm
+    provider: openai
+    model: gpt-4o-mini
+    prompt: |
+      Classify this user request into one of these categories:
+      - question: general question
+      - command: action request
+      - chitchat: casual conversation
+
+      User said: "{{input}}"
+
+      Respond with ONLY the category name.
+
+  - id: route
+    type: condition
+    input: "{{classify.output}}"
+    branches:
+      question: answer_question
+      command: handle_command
+      default: chitchat_response
+
+  - id: answer_question
+    type: llm
+    provider: anthropic
+    model: claude-sonnet-4-5-20250929
+    system_prompt: "You are a knowledgeable assistant. Give concise, clear answers."
+    prompt: "{{input}}"
+
+  - id: handle_command
+    type: llm
+    provider: openai
+    model: gpt-4o
+    system_prompt: |
+      You are a command processor. Parse the user's command and respond with
+      the action to take in a structured format.
+    prompt: "{{input}}"
+
+  - id: chitchat_response
+    type: llm
+    provider: openai
+    model: gpt-4o-mini
+    system_prompt: "You are friendly and casual. Keep responses brief for voice."
+    prompt: "{{input}}"

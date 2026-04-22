@@ -1,0 +1,12 @@
+# Local / secrets
+.env
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+
+# Tooling
+.claude/
+
+# Windows artifact
+nul

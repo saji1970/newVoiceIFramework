@@ -1,0 +1,18 @@
+{
+  "name": "voicei-sdk",
+  "version": "0.1.0",
+  "description": "Embeddable chat and voice widget for VoiceI Framework",
+  "type": "module",
+  "main": "dist/voicei-sdk.umd.js",
+  "module": "dist/voicei-sdk.es.js",
+  "types": "dist/index.d.ts",
+  "files": ["dist"],
+  "scripts": {
+    "build": "tsc && vite build",
+    "dev": "vite build --watch"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.2",
+    "vite": "^6.0.0"
+  }
+}

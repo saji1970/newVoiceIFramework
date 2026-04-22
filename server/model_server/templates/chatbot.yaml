@@ -1,0 +1,12 @@
+name: simple_chatbot
+version: "1.0"
+description: A simple chatbot pipeline that responds to user messages
+trigger: chat
+
+nodes:
+  - id: respond
+    type: llm
+    provider: openai
+    model: gpt-4o-mini
+    system_prompt: "You are a helpful assistant."
+    prompt: "{{input}}"

@@ -1,0 +1,30 @@
+name: rag_pipeline
+version: "1.0"
+description: Retrieval-Augmented Generation pipeline
+trigger: chat
+
+nodes:
+  - id: embed_query
+    type: transform
+    template: "{{input}}"
+
+  - id: search_context
+    type: api
+    url: "{{retrieval_endpoint}}/search"
+    method: POST
+    body: '{"query": "{{input}}", "top_k": 5}'
+    headers:
+      Content-Type: application/json
+
+  - id: respond
+    type: llm
+    provider: openai
+    model: gpt-4o
+    system_prompt: |
+      You are a helpful assistant. Answer the user's question based on the
+      following context. If the context doesn't contain relevant information,
+      say so.
+    prompt: |
+      Context: {{search_context.output}}
+
+      Question: {{input}}
