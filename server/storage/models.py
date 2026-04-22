@@ -3,7 +3,7 @@ from __future__ import annotations
 import uuid
 from datetime import datetime, timezone
 
-from sqlalchemy import JSON, Column, DateTime, ForeignKey, Integer, String, Text
+from sqlalchemy import JSON, Boolean, Column, DateTime, ForeignKey, Integer, String, Text
 from sqlalchemy.orm import DeclarativeBase, relationship
 
 
@@ -55,7 +55,7 @@ class PipelineRecord(Base):
     description = Column(Text, nullable=True)
     config = Column(JSON, nullable=False)
     version = Column(String(20), default="1.0")
-    enabled = Column(Integer, default=1)
+    enabled = Column(Boolean, default=True)
     created_at = Column(DateTime(timezone=True), default=_utcnow)
     updated_at = Column(DateTime(timezone=True), default=_utcnow, onupdate=_utcnow)
 
@@ -67,5 +67,5 @@ class ProviderConfig(Base):
     name = Column(String(50), unique=True, nullable=False)
     provider_type = Column(String(50), nullable=False)
     config = Column(JSON, default=dict)
-    enabled = Column(Integer, default=1)
+    enabled = Column(Boolean, default=True)
     created_at = Column(DateTime(timezone=True), default=_utcnow)

@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+import re
+
+from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -16,7 +19,16 @@ class Settings(BaseSettings):
     api_key: str = "changeme"
 
     # Database
-    database_url: str = "sqlite+aiosqlite:///./voicei.db"
+    database_url: str = "postgresql+asyncpg://voicei:changeme@localhost:5432/voicei"
+
+    @field_validator("database_url", mode="before")
+    @classmethod
+    def _normalize_database_url(cls, v: str) -> str:
+        """Convert Railway/Heroku postgres:// URLs to SQLAlchemy asyncpg format."""
+        if re.match(r"^postgres(ql)?://", v):
+            return re.sub(r"^postgres(ql)?://", "postgresql+asyncpg://", v)
+        return v
+
     redis_url: str | None = None
 
     # LLM Providers

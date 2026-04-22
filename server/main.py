@@ -2,9 +2,12 @@ from __future__ import annotations
 
 import logging
 from contextlib import asynccontextmanager
+from pathlib import Path
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 
 from server.api.admin import router as admin_router
 from server.api.chat import router as chat_router
@@ -17,6 +20,8 @@ from server.storage.database import init_db
 from server.version import __version__
 
 logger = logging.getLogger(__name__)
+
+_DASHBOARD_DIR = Path(__file__).resolve().parent.parent / "dashboard_dist"
 
 
 @asynccontextmanager
@@ -60,7 +65,7 @@ app = FastAPI(
 )
 
 
-@app.get("/")
+@app.get("/api/info")
 async def service_info():
     return {
         "name": "VoiceI Framework",
@@ -87,3 +92,12 @@ app.include_router(pipelines_router, prefix="/api")
 app.include_router(admin_router, prefix="/api")
 app.include_router(providers_router, prefix="/api")
 app.include_router(connectors_router, prefix="/api")
+
+# ---------- Serve built dashboard (production single-container mode) ----------
+if _DASHBOARD_DIR.is_dir():
+    app.mount("/assets", StaticFiles(directory=_DASHBOARD_DIR / "assets"), name="dashboard-assets")
+
+    @app.get("/{full_path:path}")
+    async def _spa_fallback(full_path: str):
+        """Serve index.html for any non-API route (SPA client-side routing)."""
+        return FileResponse(_DASHBOARD_DIR / "index.html")

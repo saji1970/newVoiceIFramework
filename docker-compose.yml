@@ -7,15 +7,16 @@ services:
       - "8000:8000"
     env_file: .env
     environment:
-      # Persist SQLite in named volume; override in .env if using Postgres
-      DATABASE_URL: sqlite+aiosqlite:///./data/voicei.db
+      DATABASE_URL: postgresql+asyncpg://voicei:changeme@postgres:5432/voicei
       CORS_ORIGINS: http://localhost:5173,http://127.0.0.1:5173,http://localhost:3000
     volumes:
       - ./server:/app/server
       - ./pipelines:/app/pipelines
-      - db-data:/app/data
     depends_on:
-      - redis
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
 
   dashboard:
     build:
@@ -29,6 +30,22 @@ services:
       # Vite dev proxy target (browser still uses /api; container must reach the API)
       - API_PROXY_TARGET=http://server:8000
 
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: voicei
+      POSTGRES_USER: voicei
+      POSTGRES_PASSWORD: changeme
+    ports:
+      - "5432:5432"
+    volumes:
+      - pg-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U voicei"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
   redis:
     image: redis:7-alpine
     ports:
@@ -36,19 +53,6 @@ services:
     volumes:
       - redis-data:/data
 
-  # Uncomment for production PostgreSQL
-  # postgres:
-  #   image: postgres:16-alpine
-  #   environment:
-  #     POSTGRES_DB: voicei
-  #     POSTGRES_USER: voicei
-  #     POSTGRES_PASSWORD: changeme
-  #   ports:
-  #     - "5432:5432"
-  #   volumes:
-  #     - pg-data:/var/lib/postgresql/data
-
 volumes:
-  db-data:
+  pg-data:
   redis-data:
-  # pg-data:

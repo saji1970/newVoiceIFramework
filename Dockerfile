@@ -1,4 +1,13 @@
-# VoiceI Framework API
+# ── Stage 1: Build dashboard ──
+FROM node:22-alpine AS dashboard-build
+
+WORKDIR /dashboard
+COPY dashboard/package.json dashboard/package-lock.json ./
+RUN npm ci
+COPY dashboard/ .
+RUN npm run build
+
+# ── Stage 2: Python API + static dashboard ──
 FROM python:3.12-slim
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
@@ -11,19 +20,18 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     && rm -rf /var/lib/apt/lists/*
 
-# Install package (declared dependencies only; use docker-compose build args for extras)
+# Install Python package
 COPY pyproject.toml README.md ./
 COPY server ./server
 COPY pipelines ./pipelines
 
 RUN pip install --upgrade pip && pip install -e .
 
-ENV DATABASE_URL=sqlite+aiosqlite:///./data/voicei.db \
-    PIPLINES_DIR=pipelines \
-    HOST=0.0.0.0 \
-    PORT=8000
+# Copy built dashboard into location the server will serve
+COPY --from=dashboard-build /dashboard/dist ./dashboard_dist
 
-RUN mkdir -p /app/data
+ENV HOST=0.0.0.0 \
+    PORT=8000
 
 EXPOSE 8000
 
