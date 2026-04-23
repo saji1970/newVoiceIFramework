@@ -1,0 +1,55 @@
+name: data_enrichment
+version: "1.0"
+description: Enriches raw data by fetching from an API, transforming, and summarizing
+trigger: api
+
+nodes:
+  - id: parse_input
+    type: transform
+    template: "{{input}}"
+    output_format: json
+
+  - id: fetch_company_data
+    type: api
+    url: "https://api.example.com/companies/{{input}}"
+    method: GET
+    headers:
+      Accept: "application/json"
+    timeout: 15
+
+  - id: enrich
+    type: llm
+    provider: openai
+    model: gpt-4o-mini
+    prompt: |
+      Given this raw company data, extract and organize the following:
+      - Company name
+      - Industry
+      - Size (employees)
+      - Location
+      - Key products/services
+
+      Raw data: {{fetch_company_data.output}}
+
+      Respond in clean JSON format.
+
+  - id: generate_summary
+    type: llm
+    provider: openai
+    model: gpt-4o-mini
+    prompt: |
+      Write a 2-3 sentence company summary suitable for a CRM record
+      based on this data:
+
+      {{enrich.output}}
+
+  - id: final_record
+    type: transform
+    template: |
+      {
+        "enriched_data": {{enrich.output}},
+        "summary": "{{generate_summary.output}}",
+        "source": "auto-enrichment-pipeline",
+        "enriched_at": "{{timestamp}}"
+      }
+    output_format: json

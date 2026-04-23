@@ -1,0 +1,58 @@
+name: multi_language_support
+version: "1.0"
+description: Detects language, translates if needed, responds, and translates back
+trigger: chat
+
+variables:
+  default_language: "English"
+
+nodes:
+  - id: detect_language
+    type: llm
+    provider: openai
+    model: gpt-4o-mini
+    prompt: |
+      Detect the language of this text. Respond with ONLY the language name
+      in English (e.g., "Spanish", "French", "Japanese", "English").
+
+      Text: "{{input}}"
+
+  - id: needs_translation
+    type: condition
+    input: "{{detect_language.output}}"
+    branches:
+      English: respond_direct
+      default: translate_to_english
+
+  - id: translate_to_english
+    type: llm
+    provider: openai
+    model: gpt-4o-mini
+    prompt: |
+      Translate the following text to English. Respond with ONLY the translation.
+
+      Text: "{{input}}"
+
+  - id: respond_direct
+    type: llm
+    provider: openai
+    model: gpt-4o
+    system_prompt: "You are a helpful customer support assistant. Be concise and friendly."
+    prompt: "{{input}}"
+
+  - id: respond_translated
+    type: llm
+    provider: openai
+    model: gpt-4o
+    system_prompt: "You are a helpful customer support assistant. Be concise and friendly."
+    prompt: "{{translate_to_english.output}}"
+
+  - id: translate_back
+    type: llm
+    provider: openai
+    model: gpt-4o-mini
+    prompt: |
+      Translate the following response to {{detect_language.output}}.
+      Respond with ONLY the translation.
+
+      Text: "{{respond_translated.output}}"

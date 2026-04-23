@@ -1,0 +1,78 @@
+name: meeting_summarizer
+version: "1.0"
+description: Transcribes and summarizes meetings with action items and follow-ups
+trigger: voice
+
+nodes:
+  - id: clean_transcript
+    type: llm
+    provider: openai
+    model: gpt-4o-mini
+    prompt: |
+      Clean up this meeting transcript. Fix transcription errors,
+      add proper punctuation, and identify speakers where possible.
+
+      Raw transcript: "{{input}}"
+
+      Output the cleaned transcript only.
+
+  - id: extract_topics
+    type: llm
+    provider: openai
+    model: gpt-4o-mini
+    prompt: |
+      Identify the main topics discussed in this meeting transcript.
+      List each topic with a one-line description.
+
+      Transcript: {{clean_transcript.output}}
+
+      Respond with a numbered list of topics.
+
+  - id: extract_actions
+    type: llm
+    provider: openai
+    model: gpt-4o
+    prompt: |
+      Extract all action items from this meeting transcript.
+      For each action item include:
+      - What needs to be done
+      - Who is responsible (if mentioned)
+      - Deadline (if mentioned)
+
+      Transcript: {{clean_transcript.output}}
+
+      Respond in JSON array format:
+      [{"task": "...", "owner": "...", "deadline": "..."}]
+
+  - id: executive_summary
+    type: llm
+    provider: openai
+    model: gpt-4o
+    system_prompt: |
+      You write clear, concise executive meeting summaries.
+      Focus on decisions made, key insights, and next steps.
+    prompt: |
+      Write an executive summary of this meeting.
+
+      Topics covered: {{extract_topics.output}}
+      Action items: {{extract_actions.output}}
+      Full transcript: {{clean_transcript.output}}
+
+      Keep it under 200 words.
+
+  - id: final_report
+    type: transform
+    template: |
+      # Meeting Summary
+
+      ## Executive Summary
+      {{executive_summary.output}}
+
+      ## Topics Discussed
+      {{extract_topics.output}}
+
+      ## Action Items
+      {{extract_actions.output}}
+
+      ---
+      _Generated from voice transcript_

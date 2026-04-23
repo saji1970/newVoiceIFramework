@@ -1,0 +1,84 @@
+name: content_generator
+version: "1.0"
+description: Generates a blog post with outline, draft, and SEO metadata
+trigger: chat
+
+variables:
+  tone: "professional yet approachable"
+  target_audience: "tech-savvy business professionals"
+
+nodes:
+  - id: research
+    type: llm
+    provider: openai
+    model: gpt-4o
+    prompt: |
+      Research the following topic and provide 5 key points that should be
+      covered in a blog post. Include relevant statistics or trends if applicable.
+
+      Topic: "{{input}}"
+      Target audience: {{target_audience}}
+
+      Respond with a numbered list of key points, each with a one-line explanation.
+
+  - id: outline
+    type: llm
+    provider: openai
+    model: gpt-4o-mini
+    prompt: |
+      Create a blog post outline based on these key points:
+
+      {{research.output}}
+
+      Structure:
+      - Compelling title
+      - Introduction hook
+      - 3-5 main sections with subheadings
+      - Conclusion with call to action
+
+      Respond with the outline only.
+
+  - id: draft
+    type: llm
+    provider: openai
+    model: gpt-4o
+    system_prompt: |
+      You are a skilled content writer. Write in a {{tone}} tone
+      for {{target_audience}}. Use short paragraphs and clear language.
+    prompt: |
+      Write a full blog post following this outline:
+
+      {{outline.output}}
+
+      Requirements:
+      - 800-1200 words
+      - Include a strong opening hook
+      - Use subheadings for each section
+      - End with a clear call to action
+    temperature: 0.8
+
+  - id: seo_metadata
+    type: llm
+    provider: openai
+    model: gpt-4o-mini
+    prompt: |
+      Generate SEO metadata for this blog post:
+
+      {{draft.output}}
+
+      Provide in JSON format:
+      {
+        "meta_title": "under 60 characters",
+        "meta_description": "under 155 characters",
+        "keywords": ["5-8 relevant keywords"],
+        "slug": "url-friendly-slug"
+      }
+
+  - id: final_output
+    type: transform
+    template: |
+      === BLOG POST ===
+      {{draft.output}}
+
+      === SEO METADATA ===
+      {{seo_metadata.output}}

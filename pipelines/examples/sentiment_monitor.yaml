@@ -1,0 +1,59 @@
+name: sentiment_monitor
+version: "1.0"
+description: Analyzes customer feedback sentiment and escalates negative cases
+trigger: api
+
+variables:
+  brand_name: "Acme Corp"
+
+nodes:
+  - id: analyze_sentiment
+    type: llm
+    provider: openai
+    model: gpt-4o-mini
+    prompt: |
+      Analyze the sentiment of this customer feedback.
+      Respond with ONLY one word: positive, neutral, or negative.
+
+      Feedback: "{{input}}"
+
+  - id: sentiment_route
+    type: condition
+    input: "{{analyze_sentiment.output}}"
+    branches:
+      negative: escalate
+      neutral: log_neutral
+      positive: log_positive
+      default: log_neutral
+
+  - id: escalate
+    type: llm
+    provider: openai
+    model: gpt-4o
+    system_prompt: |
+      You are a customer experience specialist at {{brand_name}}.
+      A customer has left negative feedback. Draft a personalized,
+      empathetic response acknowledging their concerns.
+    prompt: |
+      Customer feedback: "{{input}}"
+
+      Write a response that:
+      1. Acknowledges the specific issue
+      2. Apologizes sincerely
+      3. Offers a concrete next step or resolution
+
+  - id: log_positive
+    type: transform
+    template: |
+      ✅ POSITIVE FEEDBACK
+      Original: {{input}}
+      Sentiment: {{analyze_sentiment.output}}
+      Action: Logged for testimonial review.
+
+  - id: log_neutral
+    type: transform
+    template: |
+      ℹ️ NEUTRAL FEEDBACK
+      Original: {{input}}
+      Sentiment: {{analyze_sentiment.output}}
+      Action: Logged for product team review.

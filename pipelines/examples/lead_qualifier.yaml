@@ -1,0 +1,67 @@
+name: lead_qualifier
+version: "1.0"
+description: Qualifies inbound leads by extracting key info and scoring them
+trigger: webhook
+
+variables:
+  score_threshold: "7"
+  sales_team_email: "sales@example.com"
+
+nodes:
+  - id: extract_info
+    type: llm
+    provider: openai
+    model: gpt-4o-mini
+    prompt: |
+      Extract the following from this lead inquiry. Respond in JSON format only.
+
+      Fields: name, company, role, budget, timeline, use_case
+
+      Inquiry: "{{input}}"
+
+  - id: score_lead
+    type: llm
+    provider: openai
+    model: gpt-4o-mini
+    prompt: |
+      You are a lead scoring assistant. Given the extracted lead info below,
+      assign a score from 1-10 based on likelihood to convert.
+
+      Lead info: {{extract_info.output}}
+
+      Consider: budget mention (+2), clear timeline (+2), decision-maker role (+2),
+      enterprise company (+2), specific use case (+2).
+
+      Respond with ONLY a single number (1-10).
+
+  - id: qualify_route
+    type: condition
+    input: "{{score_lead.output}}"
+    branches:
+      "10": hot_lead
+      "9": hot_lead
+      "8": hot_lead
+      "7": warm_lead
+      "6": warm_lead
+      default: nurture_lead
+
+  - id: hot_lead
+    type: transform
+    template: |
+      🔥 HOT LEAD (Score: {{score_lead.output}}/10)
+      Info: {{extract_info.output}}
+      Action: Route to {{sales_team_email}} for immediate follow-up.
+
+  - id: warm_lead
+    type: transform
+    template: |
+      ⚡ WARM LEAD (Score: {{score_lead.output}}/10)
+      Info: {{extract_info.output}}
+      Action: Add to nurture sequence, schedule follow-up in 3 days.
+
+  - id: nurture_lead
+    type: transform
+    template: |
+      📋 NURTURE LEAD (Score: {{score_lead.output}}/10)
+      Info: {{extract_info.output}}
+      Action: Add to drip campaign, re-evaluate in 30 days.
